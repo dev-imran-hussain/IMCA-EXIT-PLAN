@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { CheckCircle2, AlertTriangle, Calculator, Sparkles } from "lucide-react";
+import { CheckCircle2, AlertTriangle, Calculator } from "lucide-react";
 
 export default function EligibilityChecker() {
   const [semesters, setSemesters] = useState<number>(6);
@@ -12,10 +12,11 @@ export default function EligibilityChecker() {
   const isEligibleBcaHonours = semesters >= 8 && numCgpa >= 5.0;
 
   return (
-    <div id="eligibility" className="my-10 bg-white border-2 border-[#C56A3C]/30 rounded-2xl p-6 sm:p-8 shadow-sm">
+    <section id="eligibility" className="my-10 bg-white border-2 border-[#C56A3C]/30 rounded-2xl p-6 sm:p-8 shadow-sm">
       <div className="flex items-center gap-2 mb-2">
         <span className="inline-flex items-center gap-1 bg-[#F7ECE4] text-[#C56A3C] text-xs font-mono font-bold px-2.5 py-1 rounded tracking-wide uppercase">
-          <Calculator className="w-3.5 h-3.5" /> Interactive Tool
+          <Calculator className="w-3.5 h-3.5" width={14} height={14} aria-hidden="true" />
+          Interactive Tool
         </span>
       </div>
       
@@ -67,15 +68,15 @@ export default function EligibilityChecker() {
       {/* Result Card */}
       {isEligibleBca ? (
         <div className="bg-[#F0FDF4] border border-[#BBF7D0] rounded-xl p-4 sm:p-5 flex items-start gap-3.5 text-[#166534]">
-          <CheckCircle2 className="w-5 h-5 text-[#16A34A] shrink-0 mt-0.5" />
+          <CheckCircle2 className="w-5 h-5 text-[#16A34A] shrink-0 mt-0.5" width={20} height={20} aria-hidden="true" />
           <div className="text-sm leading-relaxed">
-            <div className="font-bold text-base text-[#16A34A] mb-1 flex items-center gap-1.5">
-              <span>100% Eligible: Aap BCA Degree Lekar Exit Kar Sakte Hain!</span>
+            <div className="font-bold text-base text-[#16A34A] mb-1">
+              100% Eligible: Aap BCA Degree Lekar Exit Kar Sakte Hain!
             </div>
             <p className="text-[#166534]">
               {isEligibleBcaHonours ? (
                 <>
-                  Aapne 8 semesters poore kar liye hain aur aapka CGPA <strong>{numCgpa.toFixed(1)}</strong> (≥ 5.0) hai. Clause 5.8 ke tehat aap <strong>BCA (Honours)</strong> ki 4-year degree lene ke liye eligible hain!
+                  Aapne 8 semesters poore kar liye hain aur aapka CGPA <strong>{numCgpa.toFixed(1)}</strong> (≥ 5.0) hai. Clause 5.8 ke tehat aap <strong>BCA (Honours)</strong> degree lene ke liye eligible hain!
                 </>
               ) : (
                 <>
@@ -90,7 +91,7 @@ export default function EligibilityChecker() {
         </div>
       ) : (
         <div className="bg-[#FFFBEB] border border-[#FDE68A] rounded-xl p-4 sm:p-5 flex items-start gap-3.5 text-[#92400E]">
-          <AlertTriangle className="w-5 h-5 text-[#D97706] shrink-0 mt-0.5" />
+          <AlertTriangle className="w-5 h-5 text-[#D97706] shrink-0 mt-0.5" width={20} height={20} aria-hidden="true" />
           <div className="text-sm leading-relaxed">
             <div className="font-bold text-base text-[#D97706] mb-1">
               ⚠️ Attention: Minimum Requirements Abhi Poori Nahi Hain
@@ -109,6 +110,6 @@ export default function EligibilityChecker() {
           </div>
         </div>
       )}
-    </div>
+    </section>
   );
 }

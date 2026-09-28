@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { CheckSquare, RotateCcw } from "lucide-react";
 
 interface StepItem {
@@ -37,37 +37,65 @@ const STEPS: StepItem[] = [
   },
 ];
 
+const STORAGE_KEY = "imca_exit_tracker_v2";
+
 export default function ExitTracker() {
+  // Default clean state rendered first to guarantee zero hydration mismatch
   const [checkedSteps, setCheckedSteps] = useState<Record<string, boolean>>({
     step1: true,
   });
+  const [mounted, setMounted] = useState(false);
+
+  // Sync with localStorage safely after mount
+  useEffect(() => {
+    setMounted(true);
+    try {
+      const stored = localStorage.getItem(STORAGE_KEY);
+      if (stored) {
+        setCheckedSteps(JSON.parse(stored));
+      }
+    } catch (e) {
+      // Graceful fallback if localStorage is blocked
+    }
+  }, []);
 
   const toggleStep = (id: string) => {
-    setCheckedSteps((prev) => ({
-      ...prev,
-      [id]: !prev[id],
-    }));
+    setCheckedSteps((prev) => {
+      const updated = {
+        ...prev,
+        [id]: !prev[id],
+      };
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
+      } catch (e) {}
+      return updated;
+    });
   };
 
   const handleReset = () => {
-    setCheckedSteps({});
+    const resetState = {};
+    setCheckedSteps(resetState);
+    try {
+      localStorage.removeItem(STORAGE_KEY);
+    } catch (e) {}
   };
 
   const completedCount = STEPS.filter((s) => checkedSteps[s.id]).length;
   const progressPercent = Math.round((completedCount / STEPS.length) * 100);
 
   return (
-    <div id="tracker" className="my-10 bg-white border border-[#E6D8C8] rounded-2xl p-6 sm:p-8 shadow-sm">
+    <section id="tracker" className="my-10 bg-white border border-[#E6D8C8] rounded-2xl p-6 sm:p-8 shadow-sm">
       <div className="flex items-center justify-between mb-2">
         <span className="inline-flex items-center gap-1.5 bg-[#F3E9D8] text-[#C56A3C] text-xs font-mono font-bold px-2.5 py-1 rounded tracking-wide uppercase">
-          <CheckSquare className="w-3.5 h-3.5" /> Exit Action Tracker
+          <CheckSquare className="w-3.5 h-3.5" width={14} height={14} aria-hidden="true" /> Exit Action Tracker
         </span>
         <button
           onClick={handleReset}
           type="button"
-          className="text-xs font-medium text-[#736155] hover:text-[#C56A3C] inline-flex items-center gap-1 transition"
+          aria-label="Reset checklist"
+          className="text-xs font-medium text-[#736155] hover:text-[#C56A3C] inline-flex items-center gap-1 transition cursor-pointer"
         >
-          <RotateCcw className="w-3 h-3" /> Reset
+          <RotateCcw className="w-3 h-3" width={12} height={12} aria-hidden="true" /> Reset
         </button>
       </div>
 
@@ -75,10 +103,10 @@ export default function ExitTracker() {
         Aapka 5-Step Exit Progress Tracker
       </h3>
       <p className="text-sm text-[#736155] mb-5">
-        Jaise-jaise aapka college paper-work aage badhe, yahan steps tick karte jayein:
+        Jaise-jaise aapka college paper-work aage badhe, yahan steps tick karte jayein ({mounted ? "auto-saved" : "saving enabled"}):
       </p>
 
-      {/* Progress Bar */}
+      {/* Progress Bar with explicit height to prevent CLS */}
       <div className="mb-6">
         <div className="flex justify-between items-center text-xs font-semibold font-mono text-[#736155] mb-2">
           <span>Overall Completion</span>
@@ -88,6 +116,10 @@ export default function ExitTracker() {
         </div>
         <div className="w-full h-3 bg-[#FAF6F0] border border-[#E6D8C8] rounded-full overflow-hidden">
           <div
+            role="progressbar"
+            aria-valuenow={progressPercent}
+            aria-valuemin={0}
+            aria-valuemax={100}
             className="h-full bg-gradient-to-r from-[#C56A3C] to-[#16A34A] transition-all duration-300 ease-out"
             style={{ width: `${progressPercent}%` }}
           />
@@ -108,7 +140,7 @@ export default function ExitTracker() {
               key={step.id}
               className={`flex items-start gap-3.5 p-3.5 sm:p-4 rounded-xl border cursor-pointer transition select-none ${
                 isChecked
-                  ? "bg-[#FAF6F0]/60 border-[#C56A3C]/40"
+                  ? "bg-[#FAF6F0]/70 border-[#C56A3C]/40"
                   : "bg-white border-[#E6D8C8] hover:bg-[#FAF6F0]"
               }`}
             >
@@ -116,7 +148,7 @@ export default function ExitTracker() {
                 type="checkbox"
                 checked={isChecked}
                 onChange={() => toggleStep(step.id)}
-                className="mt-1 h-4 w-4 rounded border-[#CBB9A5] text-[#C56A3C] focus:ring-[#C56A3C]"
+                className="mt-1 h-4 w-4 rounded border-[#CBB9A5] text-[#C56A3C] focus:ring-[#C56A3C] cursor-pointer"
               />
               <div className="flex-1">
                 <div
@@ -141,6 +173,6 @@ export default function ExitTracker() {
           );
         })}
       </div>
-    </div>
+    </section>
   );
 }
